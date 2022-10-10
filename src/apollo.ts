@@ -2,9 +2,10 @@ import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { onError } from "@apollo/client/link/error";
+import { SeeCoffeeShopsOutput } from "./gql/graphql";
 
 const httpLink = createHttpLink({
-  uri: "https://cf5a-86-48-13-212.jp.ngrok.io/graphql",
+  uri: "https://ef8a-172-107-194-165.jp.ngrok.io/graphql",
 });
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
@@ -29,7 +30,22 @@ const authLink = setContext(async (_, { headers }) => {
 
 const client = new ApolloClient({
   link: authLink.concat(errorLink).concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          seeCoffeeShops: {
+            keyArgs: false,
+            merge: (e: SeeCoffeeShopsOutput, i: SeeCoffeeShopsOutput) => {
+              if (e && e.result && i.result)
+                return { ...i, result: [...e.result, ...i.result] };
+              else return i;
+            },
+          },
+        },
+      },
+    },
+  }),
 });
 
 export default client;
