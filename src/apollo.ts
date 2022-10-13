@@ -5,7 +5,10 @@ import { onError } from "@apollo/client/link/error";
 import { SeeCoffeeShopsOutput } from "./gql/graphql";
 
 const httpLink = createHttpLink({
-  uri: "https://ef8a-172-107-194-165.jp.ngrok.io/graphql",
+  uri:
+    process.env.NODE_ENV === "production"
+      ? "https://cake-nomadcoffee-backend.herokuapp.com/graphql"
+      : "https://f802-172-107-194-165.jp.ngrok.io/graphql",
 });
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {

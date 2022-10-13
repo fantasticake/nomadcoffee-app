@@ -3,34 +3,32 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import styled from "styled-components/native";
 import Button from "../components/Button";
 import Input from "../components/Input";
-import { SearchUsersDocument } from "../gql/graphql";
 import { ActivityIndicator, FlatList } from "react-native";
+import { SearchShopsDocument } from "../gql/graphql";
+import Shop from "../components/Shop";
 
 const Container = styled.View`
   padding: 20px 10px;
 `;
 
-const Result = styled.View`
-  margin-top: 10px;
-`;
-
-const User = styled.View`
-  margin-bottom: 10px;
-`;
-
-const Username = styled.Text`
-  font-size: 16px;
-`;
-
 gql`
-  query SearchUsers($key: String!) {
-    searchUsers(key: $key) {
+  query SearchShops($key: String!) {
+    searchShops(key: $key) {
       ok
+      error
       result {
         id
-        username
+        name
+        photos {
+          id
+          url
+        }
+        categories {
+          id
+          name
+          slug
+        }
       }
-      error
     }
   }
 `;
@@ -41,12 +39,12 @@ interface IForm {
 
 const Search = () => {
   const { control, handleSubmit } = useForm<IForm>();
-  const [searchUsersQuery, { data, loading }] =
-    useLazyQuery(SearchUsersDocument);
+  const [searchShopsQuery, { data, loading }] =
+    useLazyQuery(SearchShopsDocument);
 
   const onValid: SubmitHandler<IForm> = ({ key }) => {
     if (!loading) {
-      searchUsersQuery({ variables: { key } });
+      searchShopsQuery({ variables: { key } });
     }
   };
 
@@ -71,16 +69,12 @@ const Search = () => {
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <Result>
+        <Container>
           <FlatList
-            data={data?.searchUsers.result}
-            renderItem={({ item }) => (
-              <User>
-                <Username>{item?.username}</Username>
-              </User>
-            )}
+            data={data?.searchShops.result}
+            renderItem={({ item }) => <Shop data={item} />}
           />
-        </Result>
+        </Container>
       )}
     </Container>
   );

@@ -4,26 +4,9 @@ import { SeeCoffeeShopsDocument } from "../gql/graphql";
 import { FlatList } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useState } from "react";
+import Shop from "../components/Shop";
 
 const Container = styled.View``;
-
-const Shop = styled.View`
-  margin-bottom: 20px;
-`;
-
-const Photo = styled.Image`
-  width: 100%;
-  height: 160px;
-`;
-
-const Name = styled.Text`
-  font-size: 16px;
-`;
-
-const Category = styled.Text`
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.7);
-`;
 
 gql`
   query SeeCoffeeShops($page: Int) {
@@ -82,16 +65,7 @@ const Home = () => {
         refreshing={refreshing}
         onRefresh={onRefresh}
         data={data?.seeCoffeeShops.result}
-        renderItem={({ item }) => (
-          <Shop>
-            <Photo source={{ uri: item?.photos ? item.photos[0]?.url : "" }} />
-            <Name>{item?.name}</Name>
-            <FlatList
-              data={item?.categories}
-              renderItem={({ item }) => <Category>{item?.name}</Category>}
-            />
-          </Shop>
-        )}
+        renderItem={({ item }) => <Shop data={item} />}
       />
     </Container>
   );
