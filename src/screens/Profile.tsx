@@ -47,6 +47,14 @@ gql`
         id
         username
         email
+        coffeeShop {
+          id
+          name
+          photos {
+            id
+            url
+          }
+        }
       }
       error
     }

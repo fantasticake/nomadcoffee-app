@@ -1,14 +1,15 @@
-import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
+import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { onError } from "@apollo/client/link/error";
 import { SeeCoffeeShopsOutput } from "./gql/graphql";
+import { createUploadLink } from "apollo-upload-client";
 
-const httpLink = createHttpLink({
+const uploadLink = createUploadLink({
   uri:
     process.env.NODE_ENV === "production"
       ? "https://cake-nomadcoffee-backend.herokuapp.com/graphql"
-      : "https://f802-172-107-194-165.jp.ngrok.io/graphql",
+      : "https://372b-211-197-11-2.jp.ngrok.io/graphql",
 });
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
@@ -21,18 +22,19 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (networkError) console.log(`[Network error]: ${networkError}`);
 });
 
-const authLink = setContext(async (_, { headers }) => {
+const authLink = setContext(async ({ operationName }, { headers }) => {
   const token = await AsyncStorage.getItem("token");
   return {
     headers: {
       ...headers,
+      "x-apollo-operation-name": operationName,
       "x-token": token ? token : "",
     },
   };
 });
 
 const client = new ApolloClient({
-  link: authLink.concat(errorLink).concat(httpLink),
+  link: authLink.concat(errorLink).concat(uploadLink),
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
